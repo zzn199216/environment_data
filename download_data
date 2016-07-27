@@ -1,0 +1,86 @@
+import urllib
+import sqlite3
+import json
+import time
+# import ssl
+
+# token='5j1znBVAsnSf5xQyNQyq'
+# url_base='http://www.pm25.in/api/querys/all_cities.json?'
+# url = url_base + 'token='+token
+#
+# rawtext=urllib.urlopen(url).read();
+# json_data = json.loads(rawtext.decode('utf8'));
+
+
+# url_data=urllib.urlopen(url)
+# print url_data
+#
+# data=url_data.read()
+# json_data=json.loads(data)
+
+fname = 'environment_data.json'
+str_data = open(fname).read()
+json_data = json.loads(str_data)
+
+
+timenow=time.localtime(time.time())
+my_data_save = str(timenow[0])+' '+str(timenow[1])+' '+str(timenow[2])+'.sqlite'
+
+conn = sqlite3.connect(my_data_save)
+cur = conn.cursor()
+
+cur.executescript('''
+DROP TABLE IF EXISTS Environment_data;
+
+CREATE TABLE Environment_data (
+    aqi   TEXT ,
+    area  TEXT ,
+    co   TEXT ,
+    co_24h   TEXT ,
+    no2   TEXT ,
+    no2_24h   TEXT ,
+    o3   TEXT ,
+    o3_24h   TEXT ,
+    o3_8h_24h   TEXT ,
+    pm10   TEXT ,
+    pm10_24h   TEXT ,
+    pm2_5   TEXT ,
+    pm2_5_24h   TEXT ,
+    quality   TEXT ,
+    level   TEXT ,
+    so2   TEXT ,
+    so2_24h   TEXT ,
+    primary_pollutant TEXT ,
+    time_point TEXT
+)
+''')
+
+for entry in json_data:
+    try:
+        aqi = entry['aqi'];
+        area = entry['area'];
+        co = entry['co'];
+        co_24h = entry['co_24h'];
+        no2 = entry['no2'];
+        no2_24h = entry['no2_24h'];
+        o3 = entry['o3'];
+        o3_24h = entry['o3_24h'];
+        o3_8h_24h = entry['o3_8h_24h'];
+        pm10 = entry['pm10'];
+        pm10_24h = entry['pm10_24h'];
+        pm2_5 = entry['pm2_5'];
+        pm2_5_24h = entry['pm2_5_24h'];
+        quality = entry['quality'];
+        level = entry['level'];
+        so2 = entry['so2'];
+        so2_24h = entry['so2_24h'];
+        primary_pollutant = entry['primary_pollutant'];
+        time_point = entry['time_point'];
+
+
+        cur.execute('''INSERT INTO Environment_data (aqi,area,co,co_24h,no2,no2_24h,o3,o3_24h,o3_8h_24h,pm10,pm10_24h,pm2_5,pm2_5_24h,quality,level,so2,so2_24h,primary_pollutant,time_point)
+            VALUES ( ?, ?, ?,?, ?, ?,?, ?, ?,?, ?, ?,?, ?, ?,?, ?, ?,?)''',(aqi,area,co,co_24h,no2,no2_24h,o3,o3_24h,o3_8h_24h,pm10,pm10_24h,pm2_5,pm2_5_24h,quality,level,so2,so2_24h,primary_pollutant,time_point) )
+
+        conn.commit()
+    except :
+        print rawtext
